@@ -5,6 +5,7 @@ from rest_framework.routers import DefaultRouter
 # router creates all the four urls for us
 router = DefaultRouter()
 router.register('hello-viewset', views.HelloAPIViewSet, basename='hello-viewset')
+router.register('profile', views.UserProfileViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
