@@ -9,15 +9,16 @@ class HelloAPIViewSerializer(serializers.Serializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    """Serialize a user profile objecc"""
+    """Serialize a user profile object"""
+
     class Meta:
         model = models.UserProfile
         fields = ('id', 'email', 'name', 'password')
         extra_kwargs = {
             'password': {
-                'write_only': True,     #Cannot search someone by reading password
-                'style':{
-                    'input_type': 'password'    #Only dottted characters
+                'write_only': True,  # No one read or search someone by password
+                'style': {
+                    'input_type': 'password'  # Only dotted characters
                 }
             }
         }
@@ -25,8 +26,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Create and return a new user"""
         user = models.UserProfile.objects.create_user(
-            email = validated_data['email'],
-            name = validated_data['name'],
-            password = validated_data['password'],
+            email=validated_data['email'],
+            name=validated_data['name'],
+            password=validated_data['password'],
         )
         return user
+
+
+class ProfileFeedItemSerializer(serializers.ModelSerializer):
+    """Serialize Profile Feed Item"""
+
+    class Meta:
+        models = models.ProfileFeedItems
+        field = ('id', 'user_profile', 'status_text', 'created_on')
+        extra_kwargs = {'user_profile': {'read_only': True}}  # Profile <-> feed_items relation can only be read
