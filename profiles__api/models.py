@@ -1,9 +1,10 @@
 from django.db import models
-# To overide and customize Django default user model
-from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.models import PermissionsMixin
-from django.contrib.auth.models import BaseUserManager
+# To override and customize Django default user model
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 
 class UserProfileManager(BaseUserManager):
@@ -52,7 +53,16 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         """Return string representation of our user"""
         return self.email
 
+    @receiver(post_save, sender=settings.AUTH_USER_MODEL)
+    def create_auth_token(sender, instance=None, created=False, **kwargs):
+        """Create Token for each new user"""
+        if created:
+            Token.objects.create(user=instance)
 
+
+
+
+''' 
 class ProfileFeedItems(models.Model):
     """Profile status update"""
     user_profile = models.ForeignKey(
@@ -66,3 +76,4 @@ class ProfileFeedItems(models.Model):
     def __str__(self):
         """Return model as a string"""
         return self.status_text
+'''

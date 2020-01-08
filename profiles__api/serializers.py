@@ -1,11 +1,7 @@
-from rest_framework import serializers
 # For converting input data into python objects and vice versa
+from rest_framework import serializers, exceptions
+from django.contrib.auth import authenticate
 from profiles__api import models
-
-
-class HelloAPIViewSerializer(serializers.Serializer):
-    """Serialize a name field for testing our HelloAPIView"""
-    name = serializers.CharField(max_length=10)
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -33,6 +29,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return user
 
 
+''' 
 class ProfileFeedItemSerializer(serializers.ModelSerializer):
     """Serialize Profile Feed Item"""
 
@@ -40,3 +37,36 @@ class ProfileFeedItemSerializer(serializers.ModelSerializer):
         model = models.ProfileFeedItems
         fields = ('id', 'user_profile', 'status_text', 'created_on', 'updated_at')
         extra_kwargs = {'user_profile': {'read_only': True}}  # Profile <-> feed_items relation can only be read
+'''
+
+
+class UserLoginSerialzer(serializers.Serializer):
+    """Allow user to login"""
+    email = serializers.EmailField()
+    password = serializers.CharField(max_length=255)
+
+    def validate(self, data):
+        username = data.get('email', None)
+        password = data.get('password', None)
+
+        if username and password:
+            user = authenticate(username=username, password=password)
+
+            if user:
+                if user.is_active:
+                    data["user"] = user
+                else:
+                    msg = "User is deactivated."
+                    raise exceptions.ValidationError(msg)
+            else:
+                msg = "Unable to login with given credentials"
+                raise exceptions.ValidationError(msg)
+        else:
+            msg = "Must provide valid email and password"
+            raise exceptions.ValidationError(msg)
+        return data
+
+
+class HelloAPIViewSerializer(serializers.Serializer):
+    """Serialize a name field for testing our HelloAPIView"""
+    name = serializers.CharField(max_length=10)

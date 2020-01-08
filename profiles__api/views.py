@@ -1,12 +1,12 @@
-from django.shortcuts import render
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.views import APIView
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import viewsets
-from rest_framework.authentication import TokenAuthentication  # generates random token string at every login
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import login, logout
 from rest_framework import filters
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.settings import api_settings
 from rest_framework.permissions import IsAuthenticated
 
 from profiles__api import models
@@ -25,11 +25,41 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     search_fields = ('name', 'email')
 
 
-class UserLoginAPIView(ObtainAuthToken):
-    """Handle creating user authentication token"""
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+class UserLoginAPIView(APIView):
+    permissions_classes = [IsAuthenticated]
+    serializer_class = serializers.UserLoginSerialzer
+
+    def post(self, request, *args, **kwargs):
+        serializer = serializers.UserLoginSerialzer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
+        login(request, user)
+        token, created = Token.objects.get_or_create(user=user)
+        # print("str(token.key)", str(token.key))
+        return Response({
+            'token': token.key,
+            # 'user_id': user.pk,
+            'email': user.email,
+
+        })
 
 
+class UserLogoutAPIView(APIView):
+    """Handle destroying user authentication token"""
+
+    def get(self, request):
+        # simply delete the token to force a logout
+        try:
+            # print("str(token.key)", request.user.auth_token)
+            request.user.auth_token.delete()
+        except (AttributeError, ObjectDoesNotExist):
+            pass
+        logout(request)
+        msg = "Successfully logged out."
+        return Response({"success": msg}, status=status.HTTP_200_OK)
+
+
+''' 
 class UserProfileFeedAPI(viewsets.ModelViewSet):
     """Handle creat, update, delete and retrieve profile feed items"""
     authentication_classes = (TokenAuthentication,)
@@ -40,6 +70,7 @@ class UserProfileFeedAPI(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Sets the user profile  to the logged in user"""
         serializer.save(user_profile=self.request.user)
+'''
 
 
 class HelloAPIView(APIView):
