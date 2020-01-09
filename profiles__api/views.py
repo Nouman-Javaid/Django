@@ -1,13 +1,14 @@
 from django.core.exceptions import ObjectDoesNotExist
+from numpy.core import unicode
 from rest_framework.views import APIView
 from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import login, logout
+from rest_framework.response import Response
+from rest_framework import status
 from rest_framework import filters
-from rest_framework.permissions import IsAuthenticated
 
 from profiles__api import models
 from profiles__api import serializers
@@ -19,8 +20,8 @@ from profiles__api import permissions
 class UserProfileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UserProfileSerializer
     queryset = models.UserProfile.objects.all()
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (permissions.UpdateOwnProfile,)
+    authentication_classes = (TokenAuthentication, SessionAuthentication, BasicAuthentication)
+    permission_classes = (permissions.UpdateOwnProfile, IsAuthenticated)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'email')
 
@@ -40,8 +41,9 @@ class UserLoginAPIView(APIView):
             'token': token.key,
             # 'user_id': user.pk,
             'email': user.email,
-
         })
+
+        # return redirect('/home/')
 
 
 class UserLogoutAPIView(APIView):
@@ -57,6 +59,7 @@ class UserLogoutAPIView(APIView):
         logout(request)
         msg = "Successfully logged out."
         return Response({"success": msg}, status=status.HTTP_200_OK)
+        # return redirect('/polls/')
 
 
 ''' 
