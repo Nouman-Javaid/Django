@@ -10,22 +10,29 @@ from rest_framework.authtoken.models import Token
 class UserProfileManager(BaseUserManager):
     """Manager for user profiles"""
 
-    def create_user(self, email, name, password):
+    def create_user(self, email, name, password, is_active=True, is_staff=False, is_admin=False):
         """Create and save new user with given detail"""
         if not email:
             return ValueError("Input Email")
+        if not password:
+            return ValueError("Input Password")
         email = self.normalize_email(email)
         user = self.model(email=email, name=name)
-        user.set_password(password)
+        user.set_password(password)  # Change user password
+        user.is_active = is_active
+        user.is_staff = is_staff
+        user.is_admin = is_admin
         user.save(using=self._db)
+        return user
+
+    def create_staffuser(self, email, name, password):
+        """Create and save new superuser with given details"""
+        user = self.create_user(email, name, password, is_staff=True)
         return user
 
     def create_superuser(self, email, name, password):
         """Create and save new superuser with given details"""
-        user = self.create_user(email, name, password)
-        user.is_superuser = True
-        user.is_staff = True
-        user.save(using=self._db)
+        user = self.create_user(email, name, password, is_staff=True, is_admin=True)
         return user
 
 
@@ -35,6 +42,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
 
     objects = UserProfileManager()
 
@@ -60,8 +68,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             Token.objects.create(user=instance)
 
 
-
-
 ''' 
 class ProfileFeedItems(models.Model):
     """Profile status update"""
@@ -77,3 +83,6 @@ class ProfileFeedItems(models.Model):
         """Return model as a string"""
         return self.status_text
 '''
+
+
+

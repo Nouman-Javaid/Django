@@ -39,16 +39,19 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'profiles__api',
     'myproperty',
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django_session_timeout.middleware.SessionTimeoutMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'untitled.urls'
@@ -105,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'PK'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -120,6 +123,9 @@ STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'profiles__api.UserProfile'
 
+LOGIN_URL = '/api/login'  # where requests are redirected for login
+LOGIN_REDIRECT_URL = '/api/profile'  # where requests are redirected after login
+LOGOUT_REDIRECT_URL = '/api/login'  # where requests are redirected after logout
 
 REST_FRAMEWORK = {
 
@@ -130,3 +136,6 @@ REST_FRAMEWORK = {
     ),
 }
 
+SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_AGE = 5 * 60
