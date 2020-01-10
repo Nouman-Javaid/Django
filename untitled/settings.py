@@ -123,9 +123,9 @@ STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'profiles__api.UserProfile'
 
-LOGIN_URL = '/api/login'  # where requests are redirected for login
-LOGIN_REDIRECT_URL = '/api/profile'  # where requests are redirected after login
-LOGOUT_REDIRECT_URL = '/api/login'  # where requests are redirected after logout
+LOGIN_URL = 'http://127.0.0.1:8000/api/login/'  # where requests are redirected for login
+LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000/api/profile/'  # where requests are redirected after login
+LOGOUT_REDIRECT_URL = 'http://127.0.0.1:8000/api/login/'  # where requests are redirected after logout
 
 REST_FRAMEWORK = {
 

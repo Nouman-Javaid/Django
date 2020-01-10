@@ -16,6 +16,8 @@ class UserProfileManager(BaseUserManager):
             return ValueError("Input Email")
         if not password:
             return ValueError("Input Password")
+        if not name:
+            return ValueError("Input Name")
         email = self.normalize_email(email)
         user = self.model(email=email, name=name)
         user.set_password(password)  # Change user password
@@ -39,7 +41,7 @@ class UserProfileManager(BaseUserManager):
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database Model for Users in System"""
     email = models.EmailField(max_length=255, unique=True)
-    name = models.CharField(max_length=255)
+    fullname = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
@@ -47,7 +49,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     objects = UserProfileManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name']
+    REQUIRED_FIELDS = ['fullname']
 
     def get_full_name(self):
         """Retrieve user full name"""

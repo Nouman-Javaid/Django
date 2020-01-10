@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication, BasicAuthentication
@@ -32,14 +33,15 @@ class UserLoginAPIView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = serializers.UserLoginSerialzer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data["user"]
+        user = serializer.validated_data["user"]  # Collecting data validated by validate ftn
         login(request, user)
         token, created = Token.objects.get_or_create(user=user)
         # print("str(token.key)", str(token.key))
         return Response({
             'token': token.key,
-            # 'user_id': user.pk,
+            'user_id': user.pk,
             'email': user.email,
+            'status': HTTP_200_OK,
         })
 
         # return redirect('/home/')
@@ -58,7 +60,7 @@ class UserLogoutAPIView(APIView):
         logout(request)
         msg = "Successfully logged out."
         return Response({"success": msg}, status=status.HTTP_200_OK)
-        # return redirect('/polls/')
+        # return redirect('/api/login/')
 
 
 ''' 
