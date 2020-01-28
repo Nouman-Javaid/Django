@@ -3,7 +3,7 @@ from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import login, logout
 from rest_framework.response import Response
@@ -21,9 +21,9 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UserProfileSerializer
     queryset = models.UserProfile.objects.all()
     authentication_classes = (TokenAuthentication, SessionAuthentication, BasicAuthentication)
-    permission_classes = (permissions.UpdateOwnProfile, IsAuthenticated, IsAdminUser)
+    permission_classes = (permissions.UpdateOwnProfile, )
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', 'email')
+    search_fields = ('fullname', 'email')
 
 
 class UserLoginAPIView(APIView):

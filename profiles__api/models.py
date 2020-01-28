@@ -10,31 +10,26 @@ from rest_framework.authtoken.models import Token
 class UserProfileManager(BaseUserManager):
     """Manager for user profiles"""
 
-    def create_user(self, email, name, password, is_active=True, is_staff=False, is_admin=False):
+    def create_user(self, email, name, password=None, is_staff=False , is_super=False):
         """Create and save new user with given detail"""
         if not email:
             return ValueError("Input Email")
-        if not password:
-            return ValueError("Input Password")
         if not name:
             return ValueError("Input Name")
+        if not password:
+            return ValueError("Input Password")
         email = self.normalize_email(email)
-        user = self.model(email=email, name=name)
-        user.set_password(password)  # Change user password
-        user.is_active = is_active
+        user = self.model(email=email, fullname=name)
+        user.set_password(password)
+        user.is_superuser = is_super
         user.is_staff = is_staff
-        user.is_admin = is_admin
         user.save(using=self._db)
         return user
 
-    def create_staffuser(self, email, name, password):
+    def create_superuser(self, email, fullname, password):
         """Create and save new superuser with given details"""
-        user = self.create_user(email, name, password, is_staff=True)
-        return user
-
-    def create_superuser(self, email, name, password):
-        """Create and save new superuser with given details"""
-        user = self.create_user(email, name, password, is_staff=True, is_admin=True)
+        print("superuser function")
+        user = self.create_user(email, fullname, password, True, True)
         return user
 
 
@@ -44,7 +39,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     fullname = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
     objects = UserProfileManager()
 
@@ -53,11 +48,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     def get_full_name(self):
         """Retrieve user full name"""
-        return self.name
+        return self.fullname
 
     def get_short_name(self):
         """Retrieve user short name"""
-        return self.name
+        return self.fullname
 
     def __str__(self):
         """Return string representation of our user"""

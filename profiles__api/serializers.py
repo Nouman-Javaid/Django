@@ -29,17 +29,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return user
 
 
-''' 
-class ProfileFeedItemSerializer(serializers.ModelSerializer):
-    """Serialize Profile Feed Item"""
-
-    class Meta:
-        model = models.ProfileFeedItems
-        fields = ('id', 'user_profile', 'status_text', 'created_on', 'updated_at')
-        extra_kwargs = {'user_profile': {'read_only': True}}  # Profile <-> feed_items relation can only be read
-'''
-
-
 class UserLoginSerialzer(serializers.Serializer):
     """Allow user to login"""
     email = serializers.EmailField()
@@ -64,6 +53,17 @@ class UserLoginSerialzer(serializers.Serializer):
             msg = "Must provide valid email and password"
             raise exceptions.ValidationError(msg)
         return data
+
+
+''' 
+class ProfileFeedItemSerializer(serializers.ModelSerializer):
+    """Serialize Profile Feed Item"""
+
+    class Meta:
+        model = models.ProfileFeedItems
+        fields = ('id', 'user_profile', 'status_text', 'created_on', 'updated_at')
+        extra_kwargs = {'user_profile': {'read_only': True}}  # Profile <-> feed_items relation can only be read
+'''
 
 
 class HelloAPIViewSerializer(serializers.Serializer):
