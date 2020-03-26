@@ -18,4 +18,4 @@ class UpdateOwnStatus(permissions.BasePermission):
         """Check user trying to update their own status"""
         if request.method in permissions.SAFE_METHODS:
             return True
-        return obj.user_profile.id == request.user.id  # Requesting user and updating profile feed have same id's
+        return obj.user_profile.id == request.user.id  # Requesting user and updating object have same id's

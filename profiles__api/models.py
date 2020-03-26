@@ -10,33 +10,30 @@ from rest_framework.authtoken.models import Token
 class UserProfileManager(BaseUserManager):
     """Manager for user profiles"""
 
-    def create_user(self, email, name, password=None, is_staff=False , is_super=False):
+    def create_user(self, email, f_name, l_name, password=None, is_staff=False, is_super=False):
         """Create and save new user with given detail"""
-        if not email:
-            return ValueError("Input Email")
-        if not name:
-            return ValueError("Input Name")
-        if not password:
-            return ValueError("Input Password")
+
         email = self.normalize_email(email)
-        user = self.model(email=email, fullname=name)
+        user = self.model(email=email, first_name=f_name, last_name=l_name)
         user.set_password(password)
         user.is_superuser = is_super
         user.is_staff = is_staff
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, fullname, password):
+    def create_superuser(self, email, first_name, last_name, password):
         """Create and save new superuser with given details"""
-        print("superuser function")
-        user = self.create_user(email, fullname, password, True, True)
+
+        user = self.create_user(email, first_name, last_name, password, True, True)
         return user
 
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database Model for Users in System"""
     email = models.EmailField(max_length=255, unique=True)
-    fullname = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    profile_pic = models.ImageField(upload_to='profile_pics', blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -44,15 +41,23 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     objects = UserProfileManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['fullname']
-
+    REQUIRED_FIELDS = ['first_name', 'last_name']
+    '''
     def get_full_name(self):
         """Retrieve user full name"""
-        return self.fullname
+        
+        return "%s %s" % (self.first_name, self.last_name)
+    '''
 
-    def get_short_name(self):
+    def get_first_name(self):
         """Retrieve user short name"""
-        return self.fullname
+
+        return self.first_name
+
+    def get_last_name(self):
+        """Retrieve user short name"""
+
+        return self.last_name
 
     def __str__(self):
         """Return string representation of our user"""
@@ -80,6 +85,3 @@ class ProfileFeedItems(models.Model):
         """Return model as a string"""
         return self.status_text
 '''
-
-
-

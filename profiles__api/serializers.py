@@ -9,7 +9,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.UserProfile
-        fields = ('id', 'email', 'fullname', 'password')
+        fields = '__all__'
         extra_kwargs = {
             'password': {
                 'write_only': True,  # No one read or search someone by password
@@ -23,7 +23,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         """Create and return a new user"""
         user = models.UserProfile.objects.create_user(
             email=validated_data['email'],
-            name=validated_data['fullname'],
+            f_name=validated_data['first_name'],
+            l_name=validated_data['last_name'],
             password=validated_data['password'],
         )
         return user
